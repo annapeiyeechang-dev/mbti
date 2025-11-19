@@ -10,19 +10,29 @@ type QuizState = 'start' | 'quiz' | 'result';
 function App() {
   const [quizState, setQuizState] = useState<QuizState>('start');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string[]>>({
+    EI: [],
+    SN: [],
+    TF: [],
+    JP: []
+  });
 
   const handleStart = () => {
     setQuizState('quiz');
     setCurrentQuestionIndex(0);
-    setAnswers({});
+    setAnswers({
+      EI: [],
+      SN: [],
+      TF: [],
+      JP: []
+    });
   };
 
   const handleAnswer = (value: string) => {
     const currentQuestion = questions[currentQuestionIndex];
     const newAnswers = {
       ...answers,
-      [currentQuestion.dimension]: value,
+      [currentQuestion.dimension]: [...answers[currentQuestion.dimension], value]
     };
     setAnswers(newAnswers);
 
@@ -34,30 +44,24 @@ function App() {
   };
 
   const calculatePersonalityType = () => {
-    const dimensions = {
-      EI: { E: 0, I: 0 },
-      SN: { S: 0, N: 0 },
-      TF: { T: 0, F: 0 },
-      JP: { J: 0, P: 0 },
+    // Count answers for each dimension
+    const counts = {
+      E: answers.EI.filter(a => a === 'E').length,
+      I: answers.EI.filter(a => a === 'I').length,
+      S: answers.SN.filter(a => a === 'S').length,
+      N: answers.SN.filter(a => a === 'N').length,
+      T: answers.TF.filter(a => a === 'T').length,
+      F: answers.TF.filter(a => a === 'F').length,
+      J: answers.JP.filter(a => a === 'J').length,
+      P: answers.JP.filter(a => a === 'P').length,
     };
 
-    Object.entries(answers).forEach(([dimension, value]) => {
-      if (dimension === 'EI') {
-        dimensions.EI[value as 'E' | 'I']++;
-      } else if (dimension === 'SN') {
-        dimensions.SN[value as 'S' | 'N']++;
-      } else if (dimension === 'TF') {
-        dimensions.TF[value as 'T' | 'F']++;
-      } else if (dimension === 'JP') {
-        dimensions.JP[value as 'J' | 'P']++;
-      }
-    });
-
+    // Determine personality type based on majority in each dimension
     const type = 
-      (dimensions.EI.E >= dimensions.EI.I ? 'E' : 'I') +
-      (dimensions.SN.S >= dimensions.SN.N ? 'S' : 'N') +
-      (dimensions.TF.T >= dimensions.TF.F ? 'T' : 'F') +
-      (dimensions.JP.J >= dimensions.JP.P ? 'J' : 'P');
+      (counts.E > counts.I ? 'E' : counts.I > counts.E ? 'I' : 'E') +
+      (counts.S > counts.N ? 'S' : counts.N > counts.S ? 'N' : 'N') +
+      (counts.T > counts.F ? 'T' : counts.F > counts.T ? 'F' : 'F') +
+      (counts.J > counts.P ? 'J' : counts.P > counts.J ? 'P' : 'P');
 
     return personalityResults[type];
   };
@@ -65,7 +69,12 @@ function App() {
   const handleRestart = () => {
     setQuizState('start');
     setCurrentQuestionIndex(0);
-    setAnswers({});
+    setAnswers({
+      EI: [],
+      SN: [],
+      TF: [],
+      JP: []
+    });
   };
 
   if (quizState === 'start') {

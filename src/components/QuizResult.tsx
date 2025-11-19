@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { PersonalityResult } from '../types/quiz';
-import { Sparkles, TrendingUp, AlertCircle, Briefcase, RotateCcw, Share2, Download, Copy, Twitter } from 'lucide-react';
+import { Sparkles, TrendingUp, AlertCircle, Briefcase, RotateCcw, Share2, Download, Copy, Twitter, Star } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 interface QuizResultProps {
@@ -39,44 +39,70 @@ export const QuizResult: React.FC<QuizResultProps> = ({ result, onRestart }) => 
   };
 
   return (
-    <div className="min-h-screen bg-white py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div ref={resultRef} className="bg-black border-8 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,0.3)]">
-          <div className="bg-white border-8 border-black p-8 md:p-12 text-center">
+    <div className="min-h-screen bg-white py-12 px-4 relative overflow-hidden">
+      {/* Background doodles */}
+      <div className="absolute inset-0 opacity-5">
+        <svg className="absolute top-20 left-10 w-40 h-40 animate-float" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="black" strokeWidth="2" strokeDasharray="5,5" />
+        </svg>
+        <svg className="absolute bottom-20 right-10 w-40 h-40 animate-wiggle" viewBox="0 0 100 100">
+          <polygon points="50,10 90,90 10,90" fill="none" stroke="black" strokeWidth="2" />
+        </svg>
+      </div>
+
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div ref={resultRef} className="bg-white border-4 border-black rounded-lg sketch-shadow overflow-hidden">
+          <div className="bg-white border-b-4 border-black p-8 md:p-12 text-center relative">
+            {/* Decorative stars */}
+            <div className="absolute top-4 left-4">
+              <Star className="w-8 h-8 text-black animate-spin-slow" strokeWidth={2} />
+            </div>
+            <div className="absolute top-4 right-4">
+              <Star className="w-8 h-8 text-black animate-spin-slow" strokeWidth={2} />
+            </div>
+            
             <div className="text-8xl mb-6 animate-bounce">{result.emoji}</div>
-            <h1 className="text-5xl md:text-6xl font-black mb-3 uppercase tracking-tight">{result.type}</h1>
-            <div className="w-32 h-2 bg-black mx-auto mb-4"></div>
-            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-wide">{result.title}</h2>
+            <h1 className="text-5xl md:text-6xl font-black mb-3 handwritten">{result.type}</h1>
+            
+            {/* Hand-drawn underline */}
+            <svg className="w-48 h-4 mx-auto mb-4" viewBox="0 0 200 16">
+              <path d="M 5 8 Q 50 12, 100 8 T 195 8" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+            
+            <h2 className="text-3xl md:text-4xl font-black">{result.title}</h2>
           </div>
 
           <div className="p-8 md:p-12 space-y-8 bg-white">
-            <div className="bg-black text-white p-6 border-4 border-black transform -rotate-1">
-              <p className="text-xl font-bold leading-relaxed uppercase">
+            <div className="bg-white border-3 border-black p-6 rounded-lg sketch-border relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white px-4">
+                <Sparkles className="w-8 h-8 text-black" strokeWidth={2} />
+              </div>
+              <p className="text-xl font-semibold leading-relaxed text-center">
                 {result.description}
               </p>
             </div>
 
-            <div className="bg-white border-8 border-black p-6 transform rotate-1 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="bg-white border-3 border-black p-6 rounded-lg sketch-border transform rotate-1">
               <div className="flex items-center mb-4 gap-2">
-                <Sparkles className="w-8 h-8 text-black" />
-                <h3 className="text-3xl font-black uppercase">Fun Fact</h3>
+                <Sparkles className="w-8 h-8 text-black animate-pulse" strokeWidth={2} />
+                <h3 className="text-3xl font-black handwritten">Fun Fact</h3>
               </div>
-              <p className="text-xl font-bold italic">"{result.funFact}"</p>
+              <p className="text-xl font-semibold italic">"{result.funFact}"</p>
             </div>
 
             <div>
               <div className="flex items-center mb-6 gap-2">
-                <TrendingUp className="w-8 h-8 text-black" />
-                <h3 className="text-3xl font-black uppercase">Your Strengths</h3>
+                <TrendingUp className="w-8 h-8 text-black" strokeWidth={2} />
+                <h3 className="text-3xl font-black handwritten">Your Strengths</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.strengths.map((strength, index) => (
                   <div
                     key={index}
-                    className="bg-white border-4 border-black p-5 flex items-center transform hover:translate-x-1 hover:translate-y-1 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="bg-white border-3 border-black p-5 rounded-lg flex items-center transform hover:translate-x-1 hover:-translate-y-1 transition-all sketch-shadow-hover"
                   >
                     <span className="text-black mr-3 text-2xl font-black">✓</span>
-                    <span className="font-bold uppercase text-sm">{strength}</span>
+                    <span className="font-bold text-sm">{strength}</span>
                   </div>
                 ))}
               </div>
@@ -84,17 +110,17 @@ export const QuizResult: React.FC<QuizResultProps> = ({ result, onRestart }) => 
 
             <div>
               <div className="flex items-center mb-6 gap-2">
-                <AlertCircle className="w-8 h-8 text-black" />
-                <h3 className="text-3xl font-black uppercase">Growth Areas</h3>
+                <AlertCircle className="w-8 h-8 text-black" strokeWidth={2} />
+                <h3 className="text-3xl font-black handwritten">Growth Areas</h3>
               </div>
               <div className="space-y-4">
                 {result.weaknesses.map((weakness, index) => (
                   <div
                     key={index}
-                    className="bg-white border-4 border-black p-5 flex items-center transform hover:translate-x-1 hover:translate-y-1 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="bg-white border-3 border-black p-5 rounded-lg flex items-center transform hover:translate-x-1 hover:-translate-y-1 transition-all sketch-shadow-hover"
                   >
                     <span className="text-black mr-3 text-2xl font-black">⚠</span>
-                    <span className="font-bold uppercase text-sm">{weakness}</span>
+                    <span className="font-bold text-sm">{weakness}</span>
                   </div>
                 ))}
               </div>
@@ -102,16 +128,16 @@ export const QuizResult: React.FC<QuizResultProps> = ({ result, onRestart }) => 
 
             <div>
               <div className="flex items-center mb-6 gap-2">
-                <Briefcase className="w-8 h-8 text-black" />
-                <h3 className="text-3xl font-black uppercase">Ideal Careers</h3>
+                <Briefcase className="w-8 h-8 text-black" strokeWidth={2} />
+                <h3 className="text-3xl font-black handwritten">Ideal Careers</h3>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {result.careers.map((career, index) => (
                   <div
                     key={index}
-                    className="bg-black text-white border-4 border-black p-4 text-center transform hover:scale-105 transition-all"
+                    className="bg-black text-white border-3 border-black p-4 rounded-lg text-center transform hover:scale-105 hover:-rotate-2 transition-all"
                   >
-                    <span className="font-black uppercase text-xs">{career}</span>
+                    <span className="font-black text-xs">{career}</span>
                   </div>
                 ))}
               </div>
@@ -120,34 +146,34 @@ export const QuizResult: React.FC<QuizResultProps> = ({ result, onRestart }) => 
         </div>
 
         {/* Share Section */}
-        <div className="mt-12 bg-black text-white p-8 border-8 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,0.3)]">
+        <div className="mt-12 bg-white p-8 border-4 border-black rounded-lg sketch-shadow">
           <div className="flex items-center justify-center mb-6 gap-2">
-            <Share2 className="w-8 h-8" />
-            <h3 className="text-3xl font-black uppercase">Share Your Results</h3>
+            <Share2 className="w-8 h-8 text-black" strokeWidth={2} />
+            <h3 className="text-3xl font-black handwritten">Share Your Results</h3>
           </div>
           
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={handleDownload}
-              className="bg-white text-black font-black py-4 px-8 border-4 border-white hover:bg-black hover:text-white transform hover:scale-105 transition-all uppercase tracking-wide flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)]"
+              className="bg-black text-white font-black py-4 px-8 border-3 border-black rounded-full hover:bg-white hover:text-black transform hover:scale-105 hover:-rotate-2 transition-all flex items-center gap-2 sketch-shadow-hover"
             >
-              <Download className="w-5 h-5" />
+              <Download className="w-5 h-5" strokeWidth={2} />
               Download Image
             </button>
             
             <button
               onClick={handleCopyLink}
-              className="bg-white text-black font-black py-4 px-8 border-4 border-white hover:bg-black hover:text-white transform hover:scale-105 transition-all uppercase tracking-wide flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)]"
+              className="bg-black text-white font-black py-4 px-8 border-3 border-black rounded-full hover:bg-white hover:text-black transform hover:scale-105 hover:-rotate-2 transition-all flex items-center gap-2 sketch-shadow-hover"
             >
-              <Copy className="w-5 h-5" />
+              <Copy className="w-5 h-5" strokeWidth={2} />
               {copied ? 'Copied!' : 'Copy Link'}
             </button>
             
             <button
               onClick={handleShareTwitter}
-              className="bg-white text-black font-black py-4 px-8 border-4 border-white hover:bg-black hover:text-white transform hover:scale-105 transition-all uppercase tracking-wide flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)]"
+              className="bg-black text-white font-black py-4 px-8 border-3 border-black rounded-full hover:bg-white hover:text-black transform hover:scale-105 hover:-rotate-2 transition-all flex items-center gap-2 sketch-shadow-hover"
             >
-              <Twitter className="w-5 h-5" />
+              <Twitter className="w-5 h-5" strokeWidth={2} />
               Share on X
             </button>
           </div>
@@ -157,9 +183,9 @@ export const QuizResult: React.FC<QuizResultProps> = ({ result, onRestart }) => 
         <div className="text-center mt-8">
           <button
             onClick={onRestart}
-            className="bg-black text-white text-2xl font-black py-6 px-12 border-4 border-black hover:bg-white hover:text-black transform hover:scale-105 hover:rotate-2 transition-all uppercase tracking-wider shadow-[8px_8px_0px_0px_rgba(0,0,0,0.5)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,0.7)] inline-flex items-center gap-3"
+            className="bg-black text-white text-2xl font-black py-6 px-12 border-3 border-black rounded-full hover:bg-white hover:text-black transform hover:scale-105 hover:rotate-2 transition-all inline-flex items-center gap-3 sketch-shadow-hover"
           >
-            <RotateCcw className="w-6 h-6" />
+            <RotateCcw className="w-6 h-6" strokeWidth={2} />
             Take Quiz Again
           </button>
         </div>
