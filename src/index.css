@@ -3,50 +3,12 @@
 @tailwind utilities;
 
 @layer utilities {
-  .animate-spin-slow {
-    animation: spin 20s linear infinite;
-  }
-  
-  .animate-float {
-    animation: float 15s ease-in-out infinite;
-  }
-  
-  .animate-wiggle {
-    animation: wiggle 3s ease-in-out infinite;
-  }
-  
-  .delay-100 {
-    animation-delay: 0.1s;
-  }
-  
-  .delay-200 {
-    animation-delay: 0.2s;
-  }
-  
-  .delay-1000 {
-    animation-delay: 1s;
-  }
-
-  .handwritten {
-    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
-    letter-spacing: 0.02em;
-  }
-
   .sketch-shadow {
-    box-shadow: 
-      4px 4px 0px rgba(0, 0, 0, 0.1),
-      8px 8px 0px rgba(0, 0, 0, 0.05);
+    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
   }
 
   .sketch-shadow-hover {
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
-  }
-
-  .sketch-shadow-hover:hover {
-    box-shadow: 
-      6px 6px 0px rgba(0, 0, 0, 0.15),
-      10px 10px 0px rgba(0, 0, 0, 0.08);
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
   }
 
   .sketch-border {
@@ -57,31 +19,30 @@
     content: '';
     position: absolute;
     inset: -2px;
-    border: 2px solid black;
+    border: 3px solid black;
     border-radius: inherit;
-    opacity: 0.1;
     pointer-events: none;
   }
 
-  .border-3 {
-    border-width: 3px;
+  .handwritten {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+    letter-spacing: 0.02em;
   }
-}
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
+  @keyframes slide {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(20px);
+    }
   }
-  50% {
-    transform: translateY(-20px) rotate(5deg);
-  }
-}
 
-@keyframes wiggle {
-  0%, 100% {
-    transform: rotate(-3deg);
+  .delay-100 {
+    animation-delay: 0.1s;
   }
-  50% {
-    transform: rotate(3deg);
+
+  .delay-200 {
+    animation-delay: 0.2s;
   }
 }

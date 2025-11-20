@@ -1,10 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { Plus, Trash2, Heart, Sparkles, TrendingUp, AlertCircle, Download, Copy, Twitter, Star } from 'lucide-react';
+import { Plus, Trash2, Heart, Sparkles, TrendingUp, AlertCircle, Download, Copy, Twitter, Star, Brain, Compass } from 'lucide-react';
 import { personalityResults } from '../data/results';
+import { enneagramResults } from '../data/enneagramResults';
 import { calculateCompatibility } from '../utils/compatibility';
+import { calculateEnneagramCompatibility } from '../utils/enneagramCompatibility';
 import html2canvas from 'html2canvas';
 
 type RelationshipType = 'couple' | 'friends' | 'family' | 'coworker' | 'boss';
+type SystemType = 'mbti' | 'enneagram';
 
 const mbtiTypes = [
   'INTJ', 'INTP', 'ENTJ', 'ENTP',
@@ -12,6 +15,8 @@ const mbtiTypes = [
   'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ',
   'ISTP', 'ISFP', 'ESTP', 'ESFP'
 ];
+
+const enneagramTypes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 const relationshipTypes: { value: RelationshipType; label: string; emoji: string }[] = [
   { value: 'couple', label: 'Romantic Couple', emoji: '💑' },
@@ -22,6 +27,7 @@ const relationshipTypes: { value: RelationshipType; label: string; emoji: string
 ];
 
 export const CompatibilityAnalyzer: React.FC = () => {
+  const [systemType, setSystemType] = useState<SystemType>('mbti');
   const [selectedTypes, setSelectedTypes] = useState<string[]>(['', '']);
   const [relationshipType, setRelationshipType] = useState<RelationshipType>('couple');
   const [showResults, setShowResults] = useState(false);
@@ -44,6 +50,12 @@ export const CompatibilityAnalyzer: React.FC = () => {
     const newTypes = [...selectedTypes];
     newTypes[index] = value;
     setSelectedTypes(newTypes);
+  };
+
+  const handleSystemChange = (newSystem: SystemType) => {
+    setSystemType(newSystem);
+    setSelectedTypes(['', '']);
+    setShowResults(false);
   };
 
   const canAnalyze = selectedTypes.every(type => type !== '') && selectedTypes.length >= 2;
@@ -69,7 +81,7 @@ export const CompatibilityAnalyzer: React.FC = () => {
     });
     
     const link = document.createElement('a');
-    link.download = `compatibility-${selectedTypes.join('-')}.png`;
+    link.download = `compatibility-${systemType}-${selectedTypes.join('-')}.png`;
     link.href = canvas.toDataURL();
     link.click();
   };
@@ -81,13 +93,18 @@ export const CompatibilityAnalyzer: React.FC = () => {
   };
 
   const handleShareTwitter = () => {
-    const text = `Check out our MBTI compatibility analysis! 🎉`;
+    const systemName = systemType === 'mbti' ? 'MBTI' : 'Enneagram';
+    const text = `Check out our ${systemName} compatibility analysis! 🎉`;
     const url = window.location.href;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
   };
 
   if (showResults) {
-    const compatibility = calculateCompatibility(selectedTypes, relationshipType);
+    const compatibility = systemType === 'mbti' 
+      ? calculateCompatibility(selectedTypes, relationshipType)
+      : calculateEnneagramCompatibility(selectedTypes.map(t => parseInt(t)), relationshipType);
+    
+    const systemName = systemType === 'mbti' ? 'MBTI' : 'Enneagram';
     
     return (
       <div className="min-h-screen bg-white py-12 px-4 relative overflow-hidden">
@@ -118,6 +135,10 @@ export const CompatibilityAnalyzer: React.FC = () => {
                 {relationshipTypes.find(r => r.value === relationshipType)?.label} Compatibility
               </h1>
               
+              <div className="inline-block bg-white border-2 border-black px-4 py-2 rounded-full mb-4 text-sm font-bold">
+                {systemName} Analysis
+              </div>
+              
               <svg className="w-48 h-4 mx-auto mb-4" viewBox="0 0 200 16">
                 <path d="M 5 8 Q 50 12, 100 8 T 195 8" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round" />
               </svg>
@@ -125,7 +146,7 @@ export const CompatibilityAnalyzer: React.FC = () => {
               <div className="flex flex-wrap justify-center gap-4 mb-6">
                 {selectedTypes.map((type, index) => (
                   <div key={index} className="bg-black text-white px-6 py-3 rounded-full border-3 border-black font-black text-xl">
-                    {type}
+                    {systemType === 'mbti' ? type : `Type ${type}`}
                   </div>
                 ))}
               </div>
@@ -246,6 +267,11 @@ export const CompatibilityAnalyzer: React.FC = () => {
     );
   }
 
+  const availableTypes = systemType === 'mbti' ? mbtiTypes : enneagramTypes;
+  const typeLabels = systemType === 'mbti' 
+    ? mbtiTypes.map(type => ({ value: type, label: `${type} - ${personalityResults[type].title}` }))
+    : enneagramTypes.map(type => ({ value: type, label: `Type ${type} - ${enneagramResults[parseInt(type)].title}` }));
+
   return (
     <div className="min-h-screen bg-white py-12 px-4 relative overflow-hidden">
       {/* Background doodles */}
@@ -267,8 +293,39 @@ export const CompatibilityAnalyzer: React.FC = () => {
               <path d="M 5 8 Q 50 12, 100 8 T 195 8" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round" />
             </svg>
             <p className="text-xl font-semibold">
-              Discover how different MBTI types work together!
+              Discover how different personalities work together!
             </p>
+          </div>
+
+          {/* System Type Selection */}
+          <div className="mb-8">
+            <label className="block text-2xl font-black mb-4 handwritten">Choose Personality System</label>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => handleSystemChange('mbti')}
+                className={`p-6 border-3 border-black rounded-lg font-bold text-lg transition-all transform hover:scale-105 ${
+                  systemType === 'mbti'
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-gray-100'
+                }`}
+              >
+                <Brain className="w-8 h-8 mx-auto mb-2" strokeWidth={2} />
+                <div className="font-black text-xl mb-1">MBTI</div>
+                <div className="text-sm opacity-80">16 Personality Types</div>
+              </button>
+              <button
+                onClick={() => handleSystemChange('enneagram')}
+                className={`p-6 border-3 border-black rounded-lg font-bold text-lg transition-all transform hover:scale-105 ${
+                  systemType === 'enneagram'
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-gray-100'
+                }`}
+              >
+                <Compass className="w-8 h-8 mx-auto mb-2" strokeWidth={2} />
+                <div className="font-black text-xl mb-1">Enneagram</div>
+                <div className="text-sm opacity-80">9 Core Types</div>
+              </button>
+            </div>
           </div>
 
           {/* Relationship Type Selection */}
@@ -303,10 +360,10 @@ export const CompatibilityAnalyzer: React.FC = () => {
                     onChange={(e) => updatePersonality(index, e.target.value)}
                     className="flex-1 p-4 border-3 border-black rounded-lg font-bold text-lg bg-white focus:outline-none focus:ring-4 focus:ring-black"
                   >
-                    <option value="">Select MBTI Type...</option>
-                    {mbtiTypes.map((mbti) => (
-                      <option key={mbti} value={mbti}>
-                        {mbti} - {personalityResults[mbti].title}
+                    <option value="">Select Type...</option>
+                    {typeLabels.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
                       </option>
                     ))}
                   </select>

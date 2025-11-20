@@ -3,12 +3,13 @@ import { QuizStart } from './components/QuizStart';
 import { QuizQuestion } from './components/QuizQuestion';
 import { QuizResult } from './components/QuizResult';
 import { CompatibilityAnalyzer } from './components/CompatibilityAnalyzer';
+import { EnneagramQuiz } from './components/EnneagramQuiz';
 import { questions } from './data/questions';
 import { personalityResults } from './data/results';
-import { Users, Brain } from 'lucide-react';
+import { Users, Brain, Compass } from 'lucide-react';
 
 type QuizState = 'start' | 'quiz' | 'result';
-type AppTab = 'quiz' | 'compatibility';
+type AppTab = 'quiz' | 'compatibility' | 'enneagram';
 
 function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('quiz');
@@ -102,29 +103,43 @@ function App() {
     <div className="min-h-screen bg-white">
       {/* Tab Navigation */}
       <div className="sticky top-0 z-50 bg-white border-b-4 border-black">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4">
           <div className="flex gap-2 py-4">
             <button
               onClick={() => setActiveTab('quiz')}
-              className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 font-black text-lg border-3 border-black rounded-lg transition-all transform hover:scale-105 ${
+              className={`flex-1 flex items-center justify-center gap-2 py-4 px-4 font-black text-base md:text-lg border-3 border-black rounded-lg transition-all transform hover:scale-105 ${
                 activeTab === 'quiz'
                   ? 'bg-black text-white'
                   : 'bg-white text-black hover:bg-gray-100'
               }`}
             >
-              <Brain className="w-6 h-6" strokeWidth={2} />
-              Personality Quiz
+              <Brain className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2} />
+              <span className="hidden sm:inline">MBTI Quiz</span>
+              <span className="sm:hidden">MBTI</span>
             </button>
             <button
               onClick={() => setActiveTab('compatibility')}
-              className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 font-black text-lg border-3 border-black rounded-lg transition-all transform hover:scale-105 ${
+              className={`flex-1 flex items-center justify-center gap-2 py-4 px-4 font-black text-base md:text-lg border-3 border-black rounded-lg transition-all transform hover:scale-105 ${
                 activeTab === 'compatibility'
                   ? 'bg-black text-white'
                   : 'bg-white text-black hover:bg-gray-100'
               }`}
             >
-              <Users className="w-6 h-6" strokeWidth={2} />
-              Compatibility
+              <Users className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2} />
+              <span className="hidden sm:inline">Compatibility</span>
+              <span className="sm:hidden">Match</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('enneagram')}
+              className={`flex-1 flex items-center justify-center gap-2 py-4 px-4 font-black text-base md:text-lg border-3 border-black rounded-lg transition-all transform hover:scale-105 ${
+                activeTab === 'enneagram'
+                  ? 'bg-black text-white'
+                  : 'bg-white text-black hover:bg-gray-100'
+              }`}
+            >
+              <Compass className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2} />
+              <span className="hidden sm:inline">Enneagram</span>
+              <span className="sm:hidden">Ennea</span>
             </button>
           </div>
         </div>
@@ -132,7 +147,9 @@ function App() {
 
       {/* Tab Content */}
       <div>
-        {activeTab === 'quiz' ? renderQuizContent() : <CompatibilityAnalyzer />}
+        {activeTab === 'quiz' && renderQuizContent()}
+        {activeTab === 'compatibility' && <CompatibilityAnalyzer />}
+        {activeTab === 'enneagram' && <EnneagramQuiz />}
       </div>
     </div>
   );
