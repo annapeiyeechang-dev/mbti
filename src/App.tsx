@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { QuizStart } from './components/QuizStart';
 import { QuizQuestion } from './components/QuizQuestion';
 import { QuizResult } from './components/QuizResult';
+import { CompatibilityAnalyzer } from './components/CompatibilityAnalyzer';
 import { questions } from './data/questions';
 import { personalityResults } from './data/results';
+import { Users, Brain } from 'lucide-react';
 
 type QuizState = 'start' | 'quiz' | 'result';
+type AppTab = 'quiz' | 'compatibility';
 
 function App() {
+  const [activeTab, setActiveTab] = useState<AppTab>('quiz');
   const [quizState, setQuizState] = useState<QuizState>('start');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string[]>>({
@@ -44,7 +48,6 @@ function App() {
   };
 
   const calculatePersonalityType = () => {
-    // Count answers for each dimension
     const counts = {
       E: answers.EI.filter(a => a === 'E').length,
       I: answers.EI.filter(a => a === 'I').length,
@@ -56,7 +59,6 @@ function App() {
       P: answers.JP.filter(a => a === 'P').length,
     };
 
-    // Determine personality type based on majority in each dimension
     const type = 
       (counts.E > counts.I ? 'E' : counts.I > counts.E ? 'I' : 'E') +
       (counts.S > counts.N ? 'S' : counts.N > counts.S ? 'N' : 'N') +
@@ -77,22 +79,63 @@ function App() {
     });
   };
 
-  if (quizState === 'start') {
-    return <QuizStart onStart={handleStart} />;
-  }
+  const renderQuizContent = () => {
+    if (quizState === 'start') {
+      return <QuizStart onStart={handleStart} />;
+    }
 
-  if (quizState === 'quiz') {
-    return (
-      <QuizQuestion
-        question={questions[currentQuestionIndex]}
-        currentQuestion={currentQuestionIndex}
-        totalQuestions={questions.length}
-        onAnswer={handleAnswer}
-      />
-    );
-  }
+    if (quizState === 'quiz') {
+      return (
+        <QuizQuestion
+          question={questions[currentQuestionIndex]}
+          currentQuestion={currentQuestionIndex}
+          totalQuestions={questions.length}
+          onAnswer={handleAnswer}
+        />
+      );
+    }
 
-  return <QuizResult result={calculatePersonalityType()} onRestart={handleRestart} />;
+    return <QuizResult result={calculatePersonalityType()} onRestart={handleRestart} />;
+  };
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Tab Navigation */}
+      <div className="sticky top-0 z-50 bg-white border-b-4 border-black">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex gap-2 py-4">
+            <button
+              onClick={() => setActiveTab('quiz')}
+              className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 font-black text-lg border-3 border-black rounded-lg transition-all transform hover:scale-105 ${
+                activeTab === 'quiz'
+                  ? 'bg-black text-white'
+                  : 'bg-white text-black hover:bg-gray-100'
+              }`}
+            >
+              <Brain className="w-6 h-6" strokeWidth={2} />
+              Personality Quiz
+            </button>
+            <button
+              onClick={() => setActiveTab('compatibility')}
+              className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 font-black text-lg border-3 border-black rounded-lg transition-all transform hover:scale-105 ${
+                activeTab === 'compatibility'
+                  ? 'bg-black text-white'
+                  : 'bg-white text-black hover:bg-gray-100'
+              }`}
+            >
+              <Users className="w-6 h-6" strokeWidth={2} />
+              Compatibility
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div>
+        {activeTab === 'quiz' ? renderQuizContent() : <CompatibilityAnalyzer />}
+      </div>
+    </div>
+  );
 }
 
 export default App;
