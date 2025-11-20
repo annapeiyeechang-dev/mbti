@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { ArrowRight, Star, Sparkles, TrendingUp, AlertCircle, Heart, Download, Copy, Twitter, RotateCcw } from 'lucide-react';
+import { ArrowRight, Star, Sparkles, TrendingUp, AlertCircle, Heart, Download, Copy, Twitter, RotateCcw, PieChart as PieChartIcon } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { enneagramQuestions } from '../data/enneagramQuestions';
 import { enneagramResults } from '../data/enneagramResults';
 import html2canvas from 'html2canvas';
@@ -47,12 +48,23 @@ export const EnneagramQuiz: React.FC = () => {
     const primaryPercentage = Math.round((scores[primaryType] / totalScore) * 100);
     const secondaryPercentage = Math.round((scores[secondaryType] / totalScore) * 100);
     
+    // Prepare pie chart data
+    const pieChartData = Object.entries(scores)
+      .map(([type, score]) => ({
+        name: `Type ${type}`,
+        value: Math.round((score / totalScore) * 100),
+        type: parseInt(type),
+        emoji: enneagramResults[parseInt(type)].emoji
+      }))
+      .sort((a, b) => b.value - a.value);
+    
     return {
       primary: enneagramResults[primaryType],
       secondary: enneagramResults[secondaryType],
       primaryPercentage,
       secondaryPercentage,
-      scores: sortedTypes
+      scores: sortedTypes,
+      pieChartData
     };
   };
 
@@ -88,6 +100,24 @@ export const EnneagramQuiz: React.FC = () => {
     const text = `I'm ${result.primaryPercentage}% Type ${result.primary.type} (${result.primary.title})! 🎉 Discover your Enneagram type!`;
     const url = window.location.href;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+  };
+
+  // Custom label for pie chart
+  const renderCustomLabel = (entry: any) => {
+    return `${entry.value}%`;
+  };
+
+  // Custom tooltip
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white border-3 border-black p-3 rounded-lg sketch-shadow">
+          <p className="font-black text-lg">{payload[0].payload.emoji} {payload[0].name}</p>
+          <p className="font-bold text-sm">{payload[0].value}%</p>
+        </div>
+      );
+    }
+    return null;
   };
 
   // Start Screen
@@ -150,15 +180,15 @@ export const EnneagramQuiz: React.FC = () => {
               </li>
               <li className="flex items-start">
                 <span className="mr-3 text-2xl">✦</span>
+                <span>Visual breakdown of all 9 types</span>
+              </li>
+              <li className="flex items-start">
+                <span className="mr-3 text-2xl">✦</span>
                 <span>What really motivates you deep down</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-3 text-2xl">✦</span>
                 <span>Your hidden fears and how to grow</span>
-              </li>
-              <li className="flex items-start">
-                <span className="mr-3 text-2xl">✦</span>
-                <span>How you show up in relationships</span>
               </li>
             </ul>
           </div>
@@ -269,6 +299,9 @@ export const EnneagramQuiz: React.FC = () => {
   // Results Screen
   const result = calculateEnneagramType();
 
+  // Colors for pie chart (grayscale shades for black/white aesthetic)
+  const COLORS = ['#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#b3b3b3', '#cccccc'];
+
   return (
     <div className="min-h-screen bg-white py-12 px-4 relative overflow-hidden">
       <div className="absolute inset-0 opacity-5">
@@ -307,6 +340,52 @@ export const EnneagramQuiz: React.FC = () => {
           </div>
 
           <div className="p-8 md:p-12 space-y-8 bg-white">
+            {/* Pie Chart Section */}
+            <div className="bg-white border-3 border-black p-6 rounded-lg sketch-border relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white px-4">
+                <PieChartIcon className="w-8 h-8 text-black" strokeWidth={2} />
+              </div>
+              <h3 className="text-2xl font-black mb-6 text-center handwritten">Your Complete Type Breakdown</h3>
+              
+              <div className="w-full h-80 mb-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={result.pieChartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCustomLabel}
+                      outerRadius={120}
+                      fill="#8884d8"
+                      dataKey="value"
+                      stroke="#000000"
+                      strokeWidth={3}
+                    >
+                      {result.pieChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 mt-6">
+                {result.pieChartData.map((item, index) => (
+                  <div
+                    key={item.type}
+                    className="bg-white border-2 border-black p-3 rounded-lg text-center transform hover:scale-105 transition-all"
+                    style={{ backgroundColor: COLORS[index % COLORS.length] + '15' }}
+                  >
+                    <div className="text-2xl mb-1">{item.emoji}</div>
+                    <div className="font-black text-sm">Type {item.type}</div>
+                    <div className="font-bold text-xs">{item.value}%</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="bg-white border-3 border-black p-6 rounded-lg sketch-border relative">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white px-4">
                 <Sparkles className="w-8 h-8 text-black" strokeWidth={2} />
